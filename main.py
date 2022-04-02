@@ -2,11 +2,11 @@
 
 from sys import argv
 from geo.point import Point
-from eleve.naif import print_solution
+from student.naive.solution import print_solution
 
 def load_instance(filename):
     """
-    loads .mnt file. 
+    loads .mnt file.
     returns list of points.
     """
     with open(filename, "r") as instance_file:
