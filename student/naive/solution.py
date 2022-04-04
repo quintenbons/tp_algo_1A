@@ -44,7 +44,6 @@ def print_solution(points):
     """
     calcul et affichage de la solution (a faire)
     """
-
     closest = get_closest(points)
 
     if (DEBUGGING):
@@ -57,4 +56,4 @@ def print_solution(points):
         print(f"DEBUG === Duree d'execution: {duree}")
         print()
 
-    print(f"{closest[0]}; {closest[1]}")
+    print(f"{closest[0]};{closest[1]}")
