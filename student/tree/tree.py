@@ -65,7 +65,7 @@ class Tree:
         renvoie un couple (closest, dist)
         """
         # Cas 1: a droite ou en haut (cote positif) child2
-        if (self.axis and self.point.coordinates[0] < point.coordinates[0]) or (not self.axis and self.point.coordinates[1] < point.coordinates[1]):
+        if (self.axis and self.point.coordinates[0] > point.coordinates[0]) or (not self.axis and self.point.coordinates[1] > point.coordinates[1]):
             closest, dist = None, -1
 
             # Felicitations! C'est une feuille!
