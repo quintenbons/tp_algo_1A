@@ -1,6 +1,7 @@
 """
 solution naive au probleme
 """
+from student.utils import print_answer
 
 # debugging #########
 from geo.tycat import tycat
@@ -34,26 +35,7 @@ def get_closest(points):
             min_dst = min_p1_dst
             closest = [p1, closest_p1]
 
-
     if closest == [-1, -1]:
         raise Exception("Not enough Points")
 
     return closest
-
-def print_solution(points):
-    """
-    calcul et affichage de la solution (a faire)
-    """
-    closest = get_closest(points)
-
-    if (DEBUGGING):
-        seg = Segment([closest[0], closest[1]])
-        tycat(seg, points, closest)
-
-        duree = timeit(lambda: get_closest(points), number=10000)
-
-        print(f"DEBUG === Distance minimale: {closest[0].distance_to(closest[1])}")
-        print(f"DEBUG === Duree d'execution: {duree}")
-        print()
-
-    print(f"{closest[0]};{closest[1]}")

@@ -1,5 +1,8 @@
 """
 solution qui utilise des arbres
+cette solution est censee etre moins
+efficace que tree/solution.py car
+on ne cherche pas la mediane
 """
 
 # debugging #########
@@ -38,22 +41,3 @@ def get_closest(points):
             min_dist = dist
 
     return two_closest
-
-def print_solution(points):
-    """
-    calcul et affichage de la solution (a faire)
-    """
-
-    closest = get_closest(points)
-
-    if (DEBUGGING):
-        seg = Segment([closest[0], closest[1]])
-        tycat(seg, points, closest)
-
-        # duree = timeit(lambda: get_closest(points), number=10000)
-
-        # print(f"DEBUG === Distance minimale: {closest[0].distance_to(closest[1])}")
-        # print(f"DEBUG === Duree d'execution: {duree}")
-        # print()
-
-    print(f"{closest[0]};{closest[1]}")
