@@ -5,6 +5,7 @@ from sys import argv
 from student.utils import print_answer
 from geo.point import Point
 from student.naive.solution import get_closest
+# from student.tree_no_sort.solution import get_closest
 
 # Debugging only
 from geo.segment import Segment
@@ -35,10 +36,10 @@ def print_solution(points):
         seg = Segment([closest[0], closest[1]])
         tycat(seg, points, closest)
 
-        duree = timeit(lambda: get_closest(points), number=10000)
+        duree = timeit(lambda: get_closest(points), number=100)
 
         print(f"DEBUG === Distance minimale: {closest[0].distance_to(closest[1])}")
-        print(f"DEBUG === Duree d'execution: {duree}")
+        print(f"DEBUG === Duree moyenne d'execution: {duree}")
         print()
 
     print_answer(closest)
@@ -50,6 +51,5 @@ def main():
     for instance in argv[1:]:
         points = load_instance(instance)
         print_solution(points)
-
 
 main()

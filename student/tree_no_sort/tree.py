@@ -1,140 +1,149 @@
-
 """
 Gestion d'arbres binaires (proche des kd-tree avec k = 1, d = 2)
 """
 
-from geo.point import Point
+from student.utils import distance2
+from random import shuffle
 
 class Tree:
     """
-    Chaque noeud contient un point (2 dimensions), chaque noeud a deux fils,
-    Pour approcher un arbre minimal, idealement, il faut que la coordonnee
-    orthogonale a l'axe soit medianne dans son demi plan.
+    Arbre binaire triant les points selon un axe
+    qui alterne de pere en fils. L'arbre est concu
+    pour etre construit d'une traite. On decline toute
+    responsabilite au sujet des inserts post-creation.
+    Astuce: pour l'affichage, utiliser le module traceur
     """
-    def __init__(self, point=None, axis=True):
+    def __init__(self, axis=False):
         """
-        Initialise un narbre, et insere point si besoin.
-        l'axe sert pour inserer les points selon l'axe
-        x (coupure verticale) si True, y (coupure horizontale) si False
+        Initialise un arbre vide.
+        axis=0 (Falsy) implique que l'on divise le plan
+        verticalement pour diviser les points.
         """
+        # Par defaut, un arbre vide. Pas de fils (None)
+        # Mais pret a accueillir un point (auquel cas
+        # on initialisera les fils)
         self.axis = axis
-        self.child1 = None
-        self.child2 = None
-        self.point = point
+        self.point = None
+        self.children = [None, None]
 
-    def __intersects(self, point, max_dist):
+    def insert(self, points):
         """
-        Retourne True seulement si le point est trop proche de la
-        frontiere, et que l'arbre oppose peut avoir un point plus
-        proche
+        Insere tous les points. renvoie le couple de
+        plus proches voisins. Cette fonction est
+        a appeler sur la racine seulement.
+        Precondition: l'arbre est vide
         """
-        projected_dist = 0;
-        if self.axis:
-            projected_dist = abs(self.point.coordinates[0] - point.coordinates[0])
-        else:
-            projected_dist = abs(self.point.coordinates[1] - point.coordinates[1])
+        # dans le cas ou on cree un arbre trop vide
+        # pour parler de "voisins"
+        if len(points) < 2:
+            return [None, None]
 
-        # on fait simplement une projection sur le bon axe
-        return projected_dist < max_dist
+        # On fait un petit shuffle (l'arbre sera
+        # plus uniforme dans le cas ou points etait
+        # deja trie)
+        shuffle(points)
 
-    def find_closest(self, point, max_dist):
+        # On commence a inserer les points
+        self.insert_single(points[0])
+
+        closest_dist2 = -1
+        closest_neighbours = [None, None]
+
+        for point in points[1:]:
+            # On insere le point dans l'arbre
+            neighbours, dist2 = self.insert_single(point)
+
+            # N'arrive normalement pas, sachant
+            # que l'on a deja place le premier point
+            if dist2 == -1:
+                raise "Inserted in empty tree"
+
+            # Meilleur voisin
+            if closest_dist2 == -1 or dist2 < closest_dist2:
+                closest_neighbours = neighbours
+                closest_dist2 = dist2
+
+        return closest_neighbours
+
+    def insert_single(self, point):
         """
-        Retourne le point le plus proche de point avec une
-        methode naive. Cette fonction n'est normalement pas
-        souvent appelee. Renvoie (None, max_dist) si aucun
-        point de l'arbre n'est assez proche.
+        Insere un seul point et renvoie le couple
+        de plus proches voisins, ainsi que la dist2
         """
-        closest = self.point
-        dist = self.point.distance_to(point)
+        # On est a la feuille
+        if self.isEmpty():
+            self.point = point
+            self.children = [Tree(axis=not self.axis) for _ in range(2)]
+            return [None, point], -1
 
-        if (self.child1 != None):
-            closest1, dist1 = self.child1.find_closest(point, max_dist)
-            if (dist1 < dist):
-                closest, dist = closest1, dist1
+        # On selectionne le fils. On profite des booleens python (0=False, 1=True)
+        selected_child = point.coordinates[self.axis] >= self.point.coordinates[self.axis]
 
-        if (self.child2 != None):
-            closest2, dist2 = self.child2.find_closest(point, max_dist)
-            if (dist2 < dist):
-                closest, dist = closest2, dist2
+        # On insere dans l'arbre fils (deja initialise)
+        closest_neighbours, closest_dist2 = self.children[selected_child].insert_single(point)
 
-        return (closest, dist) if dist < max_dist else (None, max_dist)
+        # Variable indiquant si il faut verifier l'arbre oppose
+        inter = False
 
-    def insert(self, point):
+        # On verifie si self.point est un meilleur candidat
+        node_dist2 = distance2(self.point, point)
+        if closest_dist2 == -1 or node_dist2 < closest_dist2:
+            closest_neighbours = [self.point, point]
+            closest_dist2 = node_dist2
+            # Auquel cas il a necessairement intersection
+            # Ceci economise quasiment rien (un appel de __intersects)
+            inter = True
+
+        # On verifie si l'arbre oppose a un potentiel
+        # meilleur point
+        if inter or self.__intersects(point, closest_dist2):
+            # on cherche le meilleur dans l'arbre oppose
+            closest, dist2 = self.children[not selected_child].get_closest(point)
+
+            # si c'est un meilleur voisin (et qu'il existe), on garde celui ci
+            if closest != None and dist2 < closest_dist2:
+                closest_neighbours = [closest, point]
+                closest_dist2 = dist2
+
+        return closest_neighbours, closest_dist2
+
+    def isEmpty(self):
         """
-        Insere un point dans l'arbre du bon cote de l'axe
-        renvoie un couple (closest, dist)
+        Renvoie true si l'arbre est vide
         """
-        # Cas 1: a droite ou en haut (cote positif) child2
-        if (self.axis and self.point.coordinates[0] > point.coordinates[0]) or (not self.axis and self.point.coordinates[1] > point.coordinates[1]):
-            closest, dist = None, -1
+        return self.point==None
 
-            # Felicitations! C'est une feuille!
-            if self.child1 == None:
-                # On ajoute la feuille
-                print(f"DEBUG --- New leaf 1 --- {self.point} / {point} ::: {self.point.distance_to(point)}")
-                self.child1 = Tree(point, not self.axis)
-
-                # Le meilleur voisin pour l'instant c'est self
-                closest = self.point
-                dist = self.point.distance_to(point)
-
-
-            # On insere en dessous
-            else:
-                # On insere dans l'arbre fils
-                print(f"DEBUG --- Further insert 1")
-                closest, dist = self.child1.insert(point)
-
-            # On a besoin de verifier l'autre plan s'il est trop proche (et qu'il existe)
-            if self.child2 != None and self.__intersects(closest, dist):
-                # Normalement on c'est assez rare d'arriver ici
-                # On cherche un potentiel meilleur voisin O(nb_points(child))
-                new_closest, new_dist = self.child2.find_closest(point, dist)
-
-                # Si il y en a un, on garde celui ci
-                if new_closest != None:
-                    closest, dist = new_closest, new_dist
-
-            return (closest, dist)
-
-        # Cas 2: a gauche ou en bas (cote negatif) child1
-        else:
-            closest, dist = None, -1
-
-            # Felicitations! C'est une feuille!
-            if self.child2 == None:
-                # On ajoute la feuille
-                print(f"DEBUG --- New leaf 2 --- {self.point} / {point} ::: {self.point.distance_to(point)}")
-                self.child2 = Tree(point, not self.axis)
-
-                # Le meilleur voisin pour l'instant c'est self
-                closest = self.point
-                dist = self.point.distance_to(point)
-
-
-            # On insere en dessous
-            else:
-                # On insere dans l'arbre fils
-                print(f"DEBUG --- Further insert 2")
-                closest, dist = self.child2.insert(point)
-
-            # On a besoin de verifier l'autre plan s'il est trop proche (et qu'il existe)
-            if self.child1 != None and self.__intersects(closest, dist):
-                # Normalement on c'est assez rare d'arriver ici
-                # On cherche un potentiel meilleur voisin O(nb_points(child))
-                new_closest, new_dist = self.child1.find_closest(point, dist)
-
-                # Si il y en a un, on garde celui ci
-                if new_closest != None:
-                    closest, dist = new_closest, new_dist
-
-            return (closest, dist)
-
-    def __str__(self):
+    def __intersects(self, point, max_dist2):
         """
-        print code generating the point.
+        Renvoie true si l'arbre oppose a celui
+        de point a potentiellement  un meilleur
+        voisin. (plus proche que max_dist2)
         """
-        if self.point == None:
-            return "EmptyTree"
+        projected_dist2  = (self.point.coordinates[self.axis] - point.coordinates[self.axis]) ** 2
+        return projected_dist2 < max_dist2
 
-        return f"Tree_[{self.point.__str__()}]"
+    def get_closest(self, point):
+        """
+        Renvoie le point le plus proche ainsi
+        que la dist2. Methode naive en O(n).
+        A ameliorer avec une technique de "tube"
+        """
+        # Cas de l'arbre vide
+        if self.isEmpty():
+            return None, -1
+
+        possible_results = []
+
+        # On cherche recursivement sur les enfants
+        for i in range(len(self.children)):
+            closest, dist2 = self.children[i].get_closest(point)
+            if closest != None:
+                possible_results.append((closest, dist2))
+
+        # on ajoute aussi le cas du noeud courant
+        possible_results.append((self.point, distance2(self.point, point)))
+
+        # on cherche le couple (point, dist2) pout dist2 minimum
+        result = min(possible_results, key=lambda res: res[1])
+
+        return result
