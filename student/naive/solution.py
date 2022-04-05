@@ -1,38 +1,32 @@
 """
 solution naive au probleme
 """
-from student.utils import print_answer
-
-# debugging #########
-from geo.tycat import tycat
-from timeit import timeit
-from geo.segment import Segment
-
-DEBUGGING = False
-######################
+from student.utils import distance2
 
 def get_closest(points):
-    min_dst = -1
+    min_dst2 = -1
     closest = [-1, -1]
 
     for p1 in points:
-        min_p1_dst = -1
-        closest_p1 = -1
-        for p2 in points:
-            dst = p1.distance_to(p2)
+        min_p1_dst2 = -1
+        closest_p1 = None
 
-            if dst == 0:
+        # double boucle O(n^2)
+        for p2 in points:
+            # cas p1 = p2
+            if p1 == p2:
                 continue
 
-            if (min_p1_dst == -1 or min_p1_dst > dst):
-                min_p1_dst = dst
+            dst2 = distance2(p1, p2)
+
+            # Meilleur voisin
+            if (min_p1_dst2 == -1 or dst2 < min_p1_dst2):
+                min_p1_dst2 = dst2
                 closest_p1 = p2
 
-        if min_p1_dst == 0:
-            continue
-
-        if (min_dst == -1 or (dst != 0 and min_dst > dst)):
-            min_dst = min_p1_dst
+        # Meilleur couple de voisins
+        if min_dst2 == -1 or min_p1_dst2 < min_dst2:
+            min_dst2 = min_p1_dst2
             closest = [p1, closest_p1]
 
     if closest == [-1, -1]:
