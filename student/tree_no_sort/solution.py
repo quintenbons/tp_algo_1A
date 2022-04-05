@@ -5,39 +5,31 @@ efficace que tree/solution.py car
 on ne cherche pas la mediane
 """
 
-# debugging #########
-from geo.tycat import tycat
-from timeit import timeit
-from geo.segment import Segment
-from student.tree.tree import Tree
+from student.tree_no_sort.tree import Tree
 
-DEBUGGING = True
+# debugging #########
+from geo.segment import Segment
+from student.traceur import display_instance
+from geo.tycat import tycat
+
+# Note: print_solution a aussi son debug
+# mais le debug de ce fichier est plus parlant
+# pour les arbres
+DEBUGGING = False
 ######################
 
 def get_closest(points):
-    two_closest = [None, None]
-    min_dist = -1
+    # Cree un arbre et insere les points
+    tree = Tree()
+    two_closest = tree.insert(points)
 
-    # l'idee c'est qu'en calculant les plus
-    # proches voisins d'un point, on peut garder
-    # une partie de l'information pour calculer
-    # le plus proche du suivant. Ainsi on sortira
-    # de l'algorithme avec encore beaucoup d'infos
-    # superflues (le plus proche voisin de CHAQUE
-    # point) mais c'est toujours mieux qu'un O(n^2)
+    if DEBUGGING:
+        # debug plus pousse que print_solution (pour afficher l'arbre
+        display_instance(tree, deeply=False, visualize=False, image_name="./out")
 
-    # On fait un arbre
-    print(f"DEBUG --- Adding {points[0]} #######################")
-    tree = Tree(points[0])
-
-    for point in points[1:]:
-        print(f"DEBUG --- Adding {point} #######################")
-        # une insertion renverra
-        closest_point, dist = tree.insert(point);
-
-        if (min_dist == -1 or dist < min_dist):
-            print(f"DEBUG --- NEW CLOSEST {point} / {closest_point} --- {min_dist} / {dist}")
-            two_closest = [point, closest_point]
-            min_dist = dist
+        print(f"DEBUG === two_closest: {two_closest}")
+        # also displays the points, with root in a different color
+        seg = Segment([two_closest[0], two_closest[1]])
+        tycat(seg, points, two_closest, tree.point)
 
     return two_closest
