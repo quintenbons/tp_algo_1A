@@ -41,3 +41,33 @@ def distance2(point1, point2):
     d2 += (point1.coordinates[1] - point2.coordinates[1]) ** 2
 
     return d2
+
+def dichotomy_insert(point, sorted_points, axis, start=0, stop=-1):
+    """
+    Insere point dans la liste triee de points
+    sorted_points selon l'axe axis.
+    Methode: dichotomie recursive
+    On ne cherche pas a battre des records de perf
+    (sinon on ferait de l'assembleur)
+    O(ln n)
+    """
+    # cas du debut d'algo
+    if stop == -1:
+        stop = len(sorted_points)
+
+    # c'est bon
+    if start == stop:
+        sorted_points[start:start] = [point]
+        return
+
+    # point median
+    median_index = (stop+start) // 2
+    median_point = sorted_points[median_index]
+
+    # a gauche
+    if point.coordinates[axis] < median_point.coordinates[axis]:
+        dichotomy_insert(point, sorted_points, axis, start, median_index)
+
+    # a droite
+    else:
+        dichotomy_insert(point, sorted_points, axis, median_index + 1, stop)
