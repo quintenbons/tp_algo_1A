@@ -1,23 +1,60 @@
 #!/usr/bin/env python3
 # Imports
-from student.utils import generate_point_sample, print_array, distance2
+from student.utils import generate_point_sample, print_array, distance2, dichotomy_insert
 from geo.point import Point
+from geo.segment import Segment
+from geo.tycat import tycat
 from time import time
 from random import random
-from geo.tycat import tycat
 import matplotlib.pyplot as plt
 import numpy as np
 import sys, os
 import student.naive.solution as naive
 import student.tree_no_sort.solution as tree_no_sort
+import student.tree.solution as tree
 
 from main import main as realmain
 
 # Constants
+MINIMUM_POINTS = 5
 POINT_NUMBER = 50
 TEST_NUMBER = 100
 DEBUGGING = False # Only for deep debugging
 
+
+def is_sorted(points, axis):
+    """
+    Renvoie True si points est trie selon
+    l'axe
+    """
+    return all(points[i].coordinates[axis] < points[i+1].coordinates[axis] for i in range(len(points)-1))
+    
+
+def test_dicho_insert():
+    """
+    Fait des tests simples de tri
+    """
+    points = generate_point_sample(MINIMUM_POINTS)
+    [point] = generate_point_sample(1)
+
+    sorted_points_x = sorted(points, key=lambda p: p.coordinates[0])
+    sorted_points_y = sorted(points, key=lambda p: p.coordinates[1])
+
+    print(f"DEBUG === sorted x")
+    print_array(sorted_points_x)
+    print(f"DEBUG === adding {point}")
+    dichotomy_insert(point, sorted_points_x, False)
+    print_array(sorted_points_x)
+    print()
+    print(f"DEBUG === sorted y")
+    print_array(sorted_points_y)
+    print(f"DEBUG === adding {point}")
+    dichotomy_insert(point, sorted_points_y, True)
+    print_array(sorted_points_y)
+
+    if not (is_sorted(sorted_points_x, False) and is_sorted(sorted_points_y, True)):
+        print()
+        print(f"ERROR === dicho_insert ne fonctionne pas")
 
 def papers_please(closest1, closest2):
     """
@@ -34,27 +71,13 @@ def papers_please(closest1, closest2):
 
     # discrepancy if same = False
     if DEBUGGING and not same:
-        print("DEBUG --- Discrepancy")
-        print("DEBUG --- closest1")
+        print("DEBUG === Discrepancy")
+        print("DEBUG === closest1")
         print_array(closest1)
-        print("DEBUG --- closest2")
+        print("DEBUG === closest2")
         print_array(closest2)
 
     return same
-
-def test_sorting():
-    """
-    Fait des tests simples de tri
-    """
-    points = generate_point_sample(POINT_NUMBER)
-    link, sort_x, sort_y = tree_module.tri_points(points)
-
-    print("-------LINK")
-    print(link)
-    print("-------sort_x")
-    print_array(sort_x)
-    print("-------sort_y")
-    print_array(sort_y)
 
 def test_compare_to_naive(compared_closest):
     """
@@ -71,12 +94,31 @@ def test_compare_to_naive(compared_closest):
         if not papers_please(closest_naive, closest_solution):
             print(f"ERROR === Discrepancy ==============================")
             print(f"ERROR === naive    | distance : {distance2(closest_naive[0], closest_naive[1])}")
-            tycat(points, closest_naive) 
+            tycat(points, closest_naive)
             print(f"ERROR === compared | distance : {distance2(closest_solution[0], closest_solution[1])}")
             tycat(points, closest_solution)
 
+def test_algo(fnc_closest):
+    """
+    Lance les tests sur l'algorithme
+    donne en entree. Le but est de
+    debug directement dans la fonction
+    fnc_closest. DEBUGGING est donc
+    sur false par defaut.
+    """
+    points = generate_point_sample(MINIMUM_POINTS)
+    closest = fnc_closest(points)
+
+    if DEBUGGING:
+        print(f"DEBUG === Pas d'erreur fatale")
+        seg = Segment(closest)
+        tycat(points, closest, seg)
+
+
 def main():
-    test_compare_to_naive(tree_no_sort.get_closest)
+    # test_compare_to_naive(tree_no_sort.get_closest)
+    # test_algo(tree.get_closest)
+    test_dicho_insert()
 
 if __name__ == "__main__":
     main()
