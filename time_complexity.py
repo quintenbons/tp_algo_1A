@@ -8,10 +8,11 @@ import numpy as np
 import sys, os
 import student.naive.solution as naive
 import student.tree.solution as tree
+import student.tree_no_sort.solution as tree_no_sort
 
 # Constants
 MIN_POINTS = 10
-MAX_POINTS = 100
+MAX_POINTS = 300
 SAMPLE_SIZE = 10 # automatic linspace
 TEST_REPEAT = 20 # number of repeats (uniformize)
 
@@ -33,6 +34,7 @@ def main():
     X = np.linspace(MIN_POINTS, MAX_POINTS, SAMPLE_SIZE, dtype="i")
 
     naive_time = np.zeros(len(X))
+    tree_no_sort_time = np.zeros(len(X))
     tree_time = np.zeros(len(X))
 
     # On mute l'output pendant les tests
@@ -51,12 +53,17 @@ def main():
             naive_time[i] += time() - temp
 
             temp = time();
+            tree_no_sort.get_closest(points)
+            tree_no_sort_time[i] += time() - temp
+
+            temp = time();
             tree.get_closest(points)
             tree_time[i] += time() - temp
 
 
         # on n'oublie pas de rediviser
         naive_time[i] /= TEST_REPEAT
+        tree_no_sort_time[i] /= TEST_REPEAT
         tree_time[i] /= TEST_REPEAT
 
 
@@ -65,6 +72,7 @@ def main():
     sys.stdout = old_stdout
 
     plt.plot(X, naive_time, label="naive")
+    plt.plot(X, tree_no_sort_time, label="tree_no_sort")
     plt.plot(X, tree_time, label="tree")
     plt.legend()
     plt.show()
