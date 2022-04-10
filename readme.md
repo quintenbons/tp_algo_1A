@@ -34,6 +34,8 @@ Voici la structure de git:
 
 # Solutions
 
+-- --
+
 ## lineaire
 
 #### Explication
@@ -44,6 +46,7 @@ Solution naive consistant a trouver pour chaque point le voisin le plus proche e
 
 Il s'agit d'une double boucle: O(n) dans O(n).
 
+-- --
 
 ## Arbre aleatoire
 
@@ -70,7 +73,9 @@ On pourrait faire un long calcul probabiliste pour essayer de montrer qu'approch
 On peut donc faire une supposition tres bancale que ce nombre est en O(ln i), ET que ces occurrences se prononcent loin de la racine (sur les C dernieres branches, avec C constant... ou en O(ln i) si vous voulez).
 Ce qui mene avec des calculs assez simples au fait que l'insertion et la recherche du i-eme point se fait en moyenne en O(ln i) (ou en O(ln<sup>a</sup> i).
 
-Ainsi le cas moyen est quand meme quasi lineaire. Et si vous n'arrivez pas a avaler l'hypothese bancale, on sera du moins en O(n ln<sup>a</sup>(n)).
+Ainsi le cas moyen est quand meme quasi lineaire. Et si vous n'arrivez pas a avaler l'hypothese bancale, on sera du moins en O(n ln<sup>a</sup>(n)). La page wikipedia anglaise qui ressemble le plus a notre implementation dit pour l'insertion d'un point "The performance of this algorithm is nearer to logarithmic time than linear time".
+
+-- --
 
 ## Arbre median
 
@@ -79,6 +84,17 @@ Ainsi le cas moyen est quand meme quasi lineaire. Et si vous n'arrivez pas a ava
 Idem que l'arbre aleatoire, mais selectionne le meilleur point a inserer a chaque fois. La fonction de tri ne sera executee qu'une seule fois, au debut de l'algorithme. 
 Ce tri est fait pour les deux axes, en O(n ln n). Nous utilisons ici le qsort de python, mais un algorithme en diviser pour reigner pourrait aussi marcher.
 
+Une petite "amelioration" (qui au final en python n'en est pas une) de la fonction get_closest a aussi etee apportee. Le but n'est pas tant
+
+![image explicative](./explanations/kdtree.png)
+
+Le dessin le montre bien: les ensembles de points B et A seront de toute facon trop loin de P2 pour etre un meilleur voisin. Autant ne pas les regarder du tout (cela couterait une simple projection). Au final le fait de projeter 1 fois par noeud coute plus cher que de quand meme verifier tous les points de A et B dans le cas moyen. Mais c'etait quand meme une experience interessante.
+
+#### En pratique
+
+Il s'avere que 1/4 des noeuds sont esquives par la petite amelioration. Mais la courbe de performance monte a notre grand etonnement.
+Il est aussi a noter qu'en python (peut etre pas en C) l'arbre aleatoire etait plus efficace sur des points generes aleatoirement.
+
 #### Complexite | cas quelconque: O(n ln(n))
 
 Tri en O(n ln n).
@@ -86,7 +102,9 @@ Tri en O(n ln n).
 On se retrouve ensuite dans le meilleur des cas de l'arbre aleatoire, a quelques O(1) pres...
 Sans trop rentrer dans les details, on est en O(n ln n) si notre algorithme de recherche d'intersection s'effectue assez rarement.
 
-Ainsi le total se fait en O(n ln n)
+Ainsi le total se fait en temps proche de O(n ln n).
+
+-- --
 
 ## Grille
 

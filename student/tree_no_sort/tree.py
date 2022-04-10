@@ -134,6 +134,9 @@ class Tree:
 
         possible_results = []
 
+        # pour compter le nombre de noeuds vus
+        # print("tree no sort point")
+
         # On cherche recursivement sur les enfants
         for i in range(len(self.children)):
             closest, dist2 = self.children[i].get_closest(point)

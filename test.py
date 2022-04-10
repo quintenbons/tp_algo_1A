@@ -28,7 +28,6 @@ def is_sorted(points, axis):
     l'axe
     """
     return all(points[i].coordinates[axis] < points[i+1].coordinates[axis] for i in range(len(points)-1))
-    
 
 def test_dicho_insert():
     """
@@ -114,11 +113,23 @@ def test_algo(fnc_closest):
         seg = Segment(closest)
         tycat(points, closest, seg)
 
+def run(fnc_closest1, fnc_closest2, n):
+    """
+    Lance simplement les fonction n fois
+    sans debug. C'est utile pour compter
+    le nombre de passages dans get_closest
+    par exemple.
+    """
+    for _ in range(n):
+        points = generate_point_sample(POINT_NUMBER)
+        fnc_closest1(points)
+        fnc_closest2(points)
 
 def main():
-    # test_compare_to_naive(tree_no_sort.get_closest)
+    test_compare_to_naive(tree.get_closest)
     # test_algo(tree.get_closest)
-    test_dicho_insert()
+    # test_dicho_insert()
+    # run(tree.get_closest, tree_no_sort.get_closest, 100)
 
 if __name__ == "__main__":
     main()

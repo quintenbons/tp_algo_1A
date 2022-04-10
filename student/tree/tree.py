@@ -17,6 +17,12 @@ def split_sorted(sorted_points, median_index, axis):
     Attention axis != self.axis
     il n'y a pas d'interet a en faire
     une methode de tree
+
+    Notez que cette fonction peut etre
+    optimisee, assez facilement d'ailleurs
+    mais je doute qu'on puisse
+    avoir une meilleure complexite.
+    Je privilégie la simplicité.
     """
     sorted0 = [[] for _ in range(2)]
     sorted1 = [[] for _ in range(2)]
@@ -128,36 +134,8 @@ class Tree:
 
         potential_best.append(self.insert_single(median_point))
 
-        # On prepare le terrain pour les enfants
+        # On prepare le terrain pour les fils
         sorted0, sorted1 = split_sorted(sorted_points, median_index, axis)
-
-        # DEBUG
-        # cnt = self.point_count()
-        # pts = self.to_array()
-        # print(f"DEBUG === axis {axis}")
-        # print(f"DEBUG === initailly sorted x")
-        # print_array(sorted_points[0])
-        # print(f"DEBUG === initailly sorted y")
-        # print_array(sorted_points[1])
-        # print()
-        # print()
-        # print(f"DEBUG === child 0 sorted x")
-        # print_array(sorted0[0])
-        # print(f"DEBUG === child 0 sorted y")
-        # print_array(sorted0[1])
-        # print()
-        # print(f"DEBUG === child 1 sorted x")
-        # print_array(sorted1[0])
-        # print(f"DEBUG === child 1 sorted y")
-        # print_array(sorted1[1])
-        # print()
-        # print(f"DEBUG === number of points: {cnt} | min dist: {potential_best[0][1]}")
-        # print_array(pts)
-        # print(f"======================================")
-        # # display_instance(self, deeply=False)
-        # if potential_best[0][1] != -1:
-        #     tycat(pts, potential_best[0][0])
-        # DEBUG END
 
         # et on appelle recursivement SUR SELF
         potential_best.append(self.insert_sorted(sorted0, not axis))
@@ -178,6 +156,10 @@ class Tree:
         """
         Insere un seul point et renvoie le couple
         de plus proches voisins, ainsi que la dist2
+
+        Notez que le couple contient forcement point
+        sans quoi on pourrait rater un point plus
+        proche encore dans l'arbre parent
         """
         # On est a la feuille
         if self.isEmpty():
@@ -207,7 +189,7 @@ class Tree:
         # meilleur point
         if inter or self.__intersects(point, closest_dist2):
             # on cherche le meilleur dans l'arbre oppose
-            closest, dist2 = self.children[not selected_child].get_closest(point)
+            closest, dist2 = self.children[not selected_child].get_closest(point, closest_dist2)
 
             # si c'est un meilleur voisin (et qu'il existe), on garde celui ci
             if closest != None and dist2 < closest_dist2:
@@ -228,15 +210,36 @@ class Tree:
         de point a potentiellement  un meilleur
         voisin. (plus proche que max_dist2)
         """
-        projected_dist2  = (self.point.coordinates[self.axis] - point.coordinates[self.axis]) ** 2
+        projected_dist2 = (self.point.coordinates[self.axis] - point.coordinates[self.axis]) ** 2
         return projected_dist2 < max_dist2
 
-    def get_closest(self, point):
+    def __too_far(self, child_number, point, max_dist2):
+        """
+        Verifie si il l'arbre fils child_number
+        est assez loin de point pour ne pas avoir
+        a s'en soucier dans get_closest.
+        """
+        # point sur l'axe ou du bon cote de l'axe. (utilisation de xor)
+        if (point.coordinates[self.axis] == self.point.coordinates[self.axis]) or ((point.coordinates[self.axis] > self.point.coordinates[self.axis]) ^ (child_number == 0)):
+            return False
+
+        # sinon on projette pour voir si point est assez loin
+        return self.__intersects(point, max_dist2)
+
+    def get_closest(self, point, max_dist2=-1):
         """
         En cas d'intersection
         Renvoie le point le plus proche ainsi
-        que la dist2. Methode naive en O(n).
-        A ameliorer avec une technique de "tube"
+        que la dist2.
+        max_dist2 est optionnel, mais le preciser
+        ameliore les performances (permet a l'algo
+        de snobber les arbres trop eloignes)
+
+        Notez que la methode utilisee differe
+        de tree_no_sort, simplement pour montrer
+        montrer une difference sur les graphes
+        de performances. En prennant la fonction
+        de tree_no_sort ca ne change presque rien.
         """
         # Cas de l'arbre vide
         if self.isEmpty():
@@ -244,9 +247,17 @@ class Tree:
 
         possible_results = []
 
-        # On cherche recursivement sur les enfants
+        # pour compter le nombre de noeuds vus avec tree_no_sort
+        # print("tree point")
+
+        # technique de tube ou plutot rectangle (voir readme)
         for i in range(len(self.children)):
-            closest, dist2 = self.children[i].get_closest(point)
+            # cas desirable (n'entamme pas de recursion)
+            if (max_dist2 != -1 and self.__too_far(i, point, max_dist2)):
+                continue;
+
+            # mince alors, il faut chercher plus loin
+            closest, dist2 = self.children[i].get_closest(point, max_dist2)
             if closest != None:
                 possible_results.append((closest, dist2))
 

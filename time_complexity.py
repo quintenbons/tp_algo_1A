@@ -30,8 +30,15 @@ def main():
     Compare les durees d'execution des differentes
     solutions. Le but est d'avoir une idee de la
     complexite en fonction d'un graphe de perf
+
+    J'en profite aussi pour compter le nombre de
+    noeuds sur lesquels on passe avec chaque
+    methode kd-tree.
     """
     X = np.linspace(MIN_POINTS, MAX_POINTS, SAMPLE_SIZE, dtype="i")
+
+    count_tree = 0
+    count_tree_no_sort = 0
 
     naive_time = np.zeros(len(X))
     tree_no_sort_time = np.zeros(len(X))
@@ -65,6 +72,11 @@ def main():
         naive_time[i] /= TEST_REPEAT
         tree_no_sort_time[i] /= TEST_REPEAT
         tree_time[i] /= TEST_REPEAT
+
+
+    # on affiche le nombre de points comptes par get_closest
+    print(count_tree)
+    print(count_tree_no_sort)
 
 
     # On remete le stdout qui va bien, sans oublier de fermer /dev/null
