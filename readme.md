@@ -1,9 +1,17 @@
+# Au correcteur
+
+Il y a beaucoup a lire, mais on attire simplement votre attention sur 3 solutions: naive
+- [lineaire (naive)](#lineaire) (Juste pour la forme).
+- [Arbre median](#arbre-median) (Moins efficace que Arbre fonctionnel, mais on aimerait vous montrer une solution inefficace en python qu'on a essayé. Un échec peut être digne d'attention.)
+- [Grille](#grille) (Simplement pour vous montrer qu'on sait bien lire un pdf en ligne, et recopier...)
+
 # Sommaire
 - [Structure](#structure)
 - [Solutions](#solutions)
     - [lineaire (naive)](#lineaire)
     - [Arbre aleatoire](#arbre-aleatoire)
     - [Arbre median](#arbre-median)
+    - [Arbre fonctionnel](#arbre-fonctionnel)
     - [Grille](#grille)
 
 # Structure
@@ -14,7 +22,7 @@ Il arrive que les structures utilisees soint programmees dans des fichiers autre
 
 Voici la structure de git:
 
-- exemple_x.pts -> Exemples de nuages de points 
+- exemple_x.pts -> Exemples de nuages de points
 - hello.py -> Exemple de debug (import initial)
 - main.py -> Programme principal qui lance la solution la plus efficace par defaut
 - test.py -> Programme de tests (il faut lire un peu pour comprendre)
@@ -38,11 +46,11 @@ Voici la structure de git:
 
 ## lineaire
 
-#### Explication
+### Explication
 
 Solution naive consistant a trouver pour chaque point le voisin le plus proche en calculant la distance de chaque voisin, avant de chercher le minimum de distance.
 
-#### Complexite | cas quelconque: O(n<sup>2</sup>)<br>
+### Complexite | cas quelconque: O(n<sup>2</sup>)<br>
 
 Il s'agit d'une double boucle: O(n) dans O(n).
 
@@ -50,7 +58,7 @@ Il s'agit d'une double boucle: O(n) dans O(n).
 
 ## Arbre aleatoire
 
-#### Explication
+### Explication
 
 Insere tous les points un a un dans un arbre k-d avec k=1 d=2. Les points sont inseres dans un ordre aleatoire pour eviter d'etre influence par l'ordre des points
 (au cas ou ils seraient tries par exemple, ce qui menerait a un cas tres peu performant).
@@ -61,7 +69,7 @@ Dans le pire des cas, il faudra passer par tous les points, ce qui reste mieux q
 Une amelioration de cette solution, si on ne fait pas confiance au dieu de la chance, serait d'inserer dans l'ordre les points mediants de chaque hyperplan ceci mene a un kd-tree "plus parfait".
 (Voir la solution [Arbre median](#arbre-median))
 
-#### Complexite | meilleur cas: O(n ln(n)) | pire cas: O(n<sup>2</sup>) | cas moyen: O(n ln<sup>a</sup>n)<br>
+### Complexite | meilleur cas: O(n ln(n)) | pire cas: O(n<sup>2</sup>) | cas moyen: O(n ln<sup>a</sup>n)<br>
 
 Le meilleur des cas est atteint quand l'arbre est parfait, et qu'il n'y a jamais d'intersection entre la boule de proximite et l'hyperplan oppose. Voir la solution k-d dans le meilleur des cas.
 
@@ -79,39 +87,61 @@ Ainsi le cas moyen est quand meme quasi lineaire. Et si vous n'arrivez pas a ava
 
 ## Arbre median
 
-#### Explication
+### Explication
 
-Idem que l'arbre aleatoire, mais selectionne le meilleur point a inserer a chaque fois. La fonction de tri ne sera executee qu'une seule fois, au debut de l'algorithme. 
+Note: ceci est un algorithme tres peu performant, car on l'a pas concu pour cela (sinon on aurait fait du C)
+
+Idem que l'arbre aleatoire, mais selectionne le meilleur point a inserer a chaque fois. La fonction de tri ne sera executee qu'une seule fois, au debut de l'algorithme.
 Ce tri est fait pour les deux axes, en O(n ln n). Nous utilisons ici le qsort de python, mais un algorithme en diviser pour reigner pourrait aussi marcher.
 
-Une petite "amelioration" (qui au final en python n'en est pas une) de la fonction get_closest a aussi etee apportee. Le but n'est pas tant
+Une petite "amelioration" (qui au final en python n'en est pas une) de la fonction get_closest a aussi ete apportee.
 
 ![image explicative](./explanations/kdtree.png)
 
 Le dessin le montre bien: les ensembles de points B et A seront de toute facon trop loin de P2 pour etre un meilleur voisin. Autant ne pas les regarder du tout (cela couterait une simple projection). Au final le fait de projeter 1 fois par noeud coute plus cher que de quand meme verifier tous les points de A et B dans le cas moyen. Mais c'etait quand meme une experience interessante.
 
-#### En pratique
+### En pratique
 
 Il s'avere que 1/4 des noeuds sont esquives par la petite amelioration. Mais la courbe de performance monte a notre grand etonnement.
 Il est aussi a noter qu'en python (peut etre pas en C) l'arbre aleatoire etait plus efficace sur des points generes aleatoirement.
 
-#### Complexite | cas quelconque: O(n ln(n))
+### Complexite | cas moyen: O(n ln(n))
 
 Tri en O(n ln n).
 
-On se retrouve ensuite dans le meilleur des cas de l'arbre aleatoire, a quelques O(1) pres...
+On se retrouve ensuite dans le meilleur des cas de l'arbre aleatoire, a quelques o(ln n) pres...
 Sans trop rentrer dans les details, on est en O(n ln n) si notre algorithme de recherche d'intersection s'effectue assez rarement.
 
 Ainsi le total se fait en temps proche de O(n ln n).
 
 -- --
 
+## Arbre fonctionnel
+
+Il s'agit la de la bonne implementation des kd tree. Il suffit de taper "closest pair algorithm" sur <strike>google</strike> duckduckgo.
+C'est un algorithme tres simple, mais interessant en analyse, car la complexite est quasiment incalculable si on ne fait pas quelques hypotheses douteuses.
+
+### Complexite | cas moyen: O(n ln(n))
+
+Proche de arbre median en pratique. C'est en <bold>performance</bold> que l'on gagne.
+
+-- --
+
 ## Grille
 
-#### Explication
 
-TODO
+### Explication
 
-#### Complexite | cas quelconque: O(n)
+Il s'agit ici de la meilleure solution selon nos amis developpeurs de stack overflow et wikipedia. Il suffit de marquer "Closest Pair Randomized algorithm" sur <strike>google</strike> duckduckgo.
 
-TODO mais bon wikipedia dit en O(n)
+Nous avons eu l'idee seuls avant de voir l'algorithme en ligne, mais on confesse que le courage de l'implementer en python vient du fait que l'on a eu confirmation que l'algorithme avait une bonne complexite en ligne.
+
+Explication de Jules Doumeche (si on vient a douter de notre comprehension de l'algorithme):
+
+### Complexite | cas moyen: O(n)
+
+L'algorithme ne fait que des "boucles" simples a travers les points. Si on suppose que le hashing se fait en temps constant, et qu'on ne tient pas compte de la reallocation de la grille, on arrive tres tres vite a la conclusion du O(n).
+
+### En partique
+
+# TODO
