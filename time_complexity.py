@@ -9,6 +9,7 @@ import sys, os
 import student.naive.solution as naive
 import student.tree.solution as tree
 import student.tree_no_sort.solution as tree_no_sort
+import student.tree_functional.solution as tree_functional
 
 # Constants
 MIN_POINTS = 10
@@ -43,6 +44,7 @@ def main():
     naive_time = np.zeros(len(X))
     tree_no_sort_time = np.zeros(len(X))
     tree_time = np.zeros(len(X))
+    tree_functional_time = np.zeros(len(X))
 
     # On mute l'output pendant les tests
     old_stdout = sys.stdout
@@ -67,17 +69,21 @@ def main():
             tree.get_closest(points)
             tree_time[i] += time() - temp
 
+            temp = time();
+            tree_functional.get_closest(points)
+            tree_functional_time[i] += time() - temp
+
 
         # on n'oublie pas de rediviser
         naive_time[i] /= TEST_REPEAT
         tree_no_sort_time[i] /= TEST_REPEAT
         tree_time[i] /= TEST_REPEAT
+        tree_functional_time[i] /= TEST_REPEAT
 
 
     # on affiche le nombre de points comptes par get_closest
     print(count_tree)
     print(count_tree_no_sort)
-
 
     # On remete le stdout qui va bien, sans oublier de fermer /dev/null
     sys.stdout.close
@@ -86,6 +92,7 @@ def main():
     plt.plot(X, naive_time, label="naive")
     plt.plot(X, tree_no_sort_time, label="tree_no_sort")
     plt.plot(X, tree_time, label="tree")
+    plt.plot(X, tree_functional_time, label="tree_functional")
     plt.legend()
     plt.show()
     plt.close()

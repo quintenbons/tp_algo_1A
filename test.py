@@ -12,6 +12,7 @@ import sys, os
 import student.naive.solution as naive
 import student.tree_no_sort.solution as tree_no_sort
 import student.tree.solution as tree
+import student.tree_functional.solution as tree_functional
 
 from main import main as realmain
 
@@ -19,7 +20,7 @@ from main import main as realmain
 MINIMUM_POINTS = 5
 POINT_NUMBER = 50
 TEST_NUMBER = 100
-DEBUGGING = False # Only for deep debugging
+DEBUGGING = True # Only for deep debugging
 
 
 def is_sorted(points, axis):
@@ -105,7 +106,7 @@ def test_algo(fnc_closest):
     fnc_closest. DEBUGGING est donc
     sur false par defaut.
     """
-    points = generate_point_sample(MINIMUM_POINTS)
+    points = generate_point_sample(1000)
     closest = fnc_closest(points)
 
     if DEBUGGING:
@@ -126,8 +127,8 @@ def run(fnc_closest1, fnc_closest2, n):
         fnc_closest2(points)
 
 def main():
-    test_compare_to_naive(tree.get_closest)
-    # test_algo(tree.get_closest)
+    test_compare_to_naive(tree_functional.get_closest)
+    # test_algo(tree_functional.get_closest)
     # test_dicho_insert()
     # run(tree.get_closest, tree_no_sort.get_closest, 100)
 

@@ -9,10 +9,7 @@ def print_answer(closest):
     Affiche la solution comme le veut le sujet.
     print(point) semble ne pas fonctionner.
     """
-    p1_coord = closest[0].coordinates
-    p2_coord = closest[1].coordinates
-
-    print(f"{p1_coord[0]}, {p1_coord[1]}; {p2_coord[0]}, {p2_coord[1]}")
+    print(f"{closest[0]}; {closest[1]}")
 
 def generate_point_sample(number):
     """
