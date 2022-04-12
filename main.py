@@ -5,8 +5,9 @@ from sys import argv
 from student.utils import print_answer
 from geo.point import Point
 # from student.naive.solution import get_closest
-from student.tree_no_sort.solution import get_closest
+# from student.tree_no_sort.solution import get_closest
 # from student.tree.solution import get_closest
+from student.tree_functional.solution import get_closest
 
 # Debugging only
 from geo.segment import Segment
