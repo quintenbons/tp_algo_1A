@@ -5,15 +5,17 @@ from time import time
 from random import random
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 import sys, os
 import student.naive.solution as naive
 import student.tree.solution as tree
 import student.tree_no_sort.solution as tree_no_sort
 import student.tree_functional.solution as tree_functional
+import student.tree_functional_no_sort.solution as tree_functional_no_sort
 
 # Constants
 MIN_POINTS = 10
-MAX_POINTS = 300
+MAX_POINTS = 100
 SAMPLE_SIZE = 10 # automatic linspace
 TEST_REPEAT = 20 # number of repeats (uniformize)
 
@@ -26,7 +28,21 @@ def generate_point_sample(number):
     points = [Point((random(), random())) for _ in range(number)]
     return points
 
-def main():
+def plot_data(data):
+    """
+    pyplot magic
+    """
+    [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time] = data
+
+    plt.plot(X, naive_time, label="naive", color="blue")
+    plt.plot(X, tree_no_sort_time, label="tree_no_sort", color="orange")
+    plt.plot(X, tree_time, label="tree", color="magenta")
+    plt.plot(X, tree_functional_time, label="tree_functional", color="red")
+    plt.plot(X, tree_functional_no_sort_time, label="tree_functional_no_sort", color="green")
+    plt.legend()
+    plt.show()
+
+def measure_and_save():
     """
     Compare les durees d'execution des differentes
     solutions. Le but est d'avoir une idee de la
@@ -45,6 +61,7 @@ def main():
     tree_no_sort_time = np.zeros(len(X))
     tree_time = np.zeros(len(X))
     tree_functional_time = np.zeros(len(X))
+    tree_functional_no_sort_time = np.zeros(len(X))
 
     # On mute l'output pendant les tests
     old_stdout = sys.stdout
@@ -73,12 +90,17 @@ def main():
             tree_functional.get_closest(points)
             tree_functional_time[i] += time() - temp
 
+            temp = time();
+            tree_functional_no_sort.get_closest(points)
+            tree_functional_no_sort_time[i] += time() - temp
+
 
         # on n'oublie pas de rediviser
         naive_time[i] /= TEST_REPEAT
         tree_no_sort_time[i] /= TEST_REPEAT
         tree_time[i] /= TEST_REPEAT
         tree_functional_time[i] /= TEST_REPEAT
+        tree_functional_no_sort_time[i] /= TEST_REPEAT
 
 
     # on affiche le nombre de points comptes par get_closest
@@ -89,14 +111,45 @@ def main():
     sys.stdout.close
     sys.stdout = old_stdout
 
-    plt.plot(X, naive_time, label="naive")
-    plt.plot(X, tree_no_sort_time, label="tree_no_sort")
-    plt.plot(X, tree_time, label="tree")
-    plt.plot(X, tree_functional_time, label="tree_functional")
-    plt.legend()
-    plt.show()
-    plt.close()
+    data = [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time]
 
+    plot_data(data)
+
+    save(data)
+
+def save(data, ext=''):
+    """
+    Sauvegarde avec pickle
+    """
+    filepath = f"./data/perf{'' if ext == '' else '-' + ext}"
+    with open(filepath, "wb") as f:
+        pickle.dump(data, f)
+
+def load(ext=''):
+    """
+    Chargement avec pickle
+    """
+    filepath = f"./data/perf{'' if ext == '' else '-' + ext}"
+    # with se chargera de fermer f avant le return
+    with open(filepath, "rb") as f:
+        return pickle.load(f)
+
+def main():
+    """
+    Verifie les options
+    par defaut: mesure la complexite et sauvegarde
+    charger et afficher: -l [ext]
+    """
+    if len(sys.argv) > 1 and sys.argv[1] == "-l":
+        ext = ''
+        if len(sys.argv) > 2:
+            ext = sys.argv[2]
+
+        data = load(ext)
+        plot_data(data)
+
+    else:
+        measure_and_save()
 
 if __name__ == "__main__":
     main()
