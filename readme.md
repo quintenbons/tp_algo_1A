@@ -1,5 +1,9 @@
 # Au correcteur
 
+Ce readme fait office de rapport. Si vous lisez sur le pdf sachez que le readme.md contient des illustrations en plus.
+
+L'equipe est constituee de Jules Doumeche (gr 6) et Quinten Bons (gr7).
+
 On attire simplement votre attention sur 3 points:
 - [lineaire (naive)](#lineaire) (Juste pour la forme).
 - [Arbre median](#arbre-median) (Moins efficace que Arbre fonctionnel, qui est la vraie solution kd-tree, mais on aimerait vous montrer une solution inefficace en python qu'on a essayé. Un échec peut être digne d'attention.)
