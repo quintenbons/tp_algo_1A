@@ -14,6 +14,7 @@ On attire simplement votre attention sur 3 points:
     - [Arbre median](#arbre-median)
     - [Arbre fonctionnel](#arbre-fonctionnel)
     - [Grille](#grille)
+- [Remerciements](#remerciements)
 
 # Performances
 
@@ -181,3 +182,7 @@ L'algorithme ne fait que des "boucles" simples a travers les points.
 ### En partique
 
 L'algorithme est extremement sensible a la premiere approximation. Dans un nuage de points aleatoire, on ne risque pas trop d'avoir dapprox >> dmin, mais si c'est le cas, on se retrouve a faire l'algo naif, en pire (car on fait 2 fois tous les couples).
+
+# Remerciements
+
+Nous vous remercions de votre travail, ce sujet etait interessant, meme si classique. Nous en avons tire quelques bonnes habitudes, et le travail a deux etait quelque chose d'assez nouveau pour l'un d'entre nous (Quinten).
