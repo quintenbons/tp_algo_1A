@@ -1,11 +1,12 @@
 # Au correcteur
 
-Il y a beaucoup a lire, mais on attire simplement votre attention sur 3 solutions: naive
+On attire simplement votre attention sur 3 points:
 - [lineaire (naive)](#lineaire) (Juste pour la forme).
-- [Arbre median](#arbre-median) (Moins efficace que Arbre fonctionnel, mais on aimerait vous montrer une solution inefficace en python qu'on a essayé. Un échec peut être digne d'attention.)
-- [Grille](#grille) (Simplement pour vous montrer qu'on sait bien lire un pdf en ligne, et recopier...)
+- [Arbre median](#arbre-median) (Moins efficace que Arbre fonctionnel, qui est la vraie solution kd-tree, mais on aimerait vous montrer une solution inefficace en python qu'on a essayé. Un échec peut être digne d'attention.)
+- [Grille](#grille) (Simplement pour vous montrer qu'on sait bien lire un pdf en ligne...)
 
 # Sommaire
+- [performances](#performances)
 - [Structure](#structure)
 - [Solutions](#solutions)
     - [lineaire (naive)](#lineaire)
@@ -13,6 +14,19 @@ Il y a beaucoup a lire, mais on attire simplement votre attention sur 3 solution
     - [Arbre median](#arbre-median)
     - [Arbre fonctionnel](#arbre-fonctionnel)
     - [Grille](#grille)
+
+# Performances
+
+Il suffit de regarder les courbes: tres vite (n>300), la solution grille devient la meilleure. on devine aussi les complexites sur les courbes, mais une analyse est disponible plus loin.
+
+Note: au dela de 300 points j'ai elimine les cas les moins performants.
+
+Note2: naive est en fait un peu meilleure, mais on juge que ca ne vaut quand meme pas la peinde de refaire le jeu de tests.
+
+![100 points](./explanations/perf-100.png)
+![300 points](./explanations/perf-300.png)
+![1000 points](./explanations/perf-1000.png)
+![10000 points](./explanations/perf-10000.png)
 
 # Structure
 
@@ -37,8 +51,10 @@ Voici la structure de git:
     - utils.py -> Utilitaires utilises dans les autres scripts
     - naive/ -> [lineaire (naive)](#lineaire)
     - tree_no_sort/ -> [Arbre aleatoire](#arbre-aleatoire)
-    - tree/ -> [Arbre median](#arbre-median)
-    - grid/ -> [Grille](#grille)
+    - tree/ -> [Arbre median](#arbre-median) Un echec interessant
+    - tree_functional -> [Arbre fonctionnel](#arbre-fonctionnel)
+    - tree_functional_no_sort -> Arbre fonctionnel sans tri pour trouver la mediane
+    - randomized/ -> [Grille](#grille)
 
 # Solutions
 
@@ -59,6 +75,7 @@ Il s'agit d'une double boucle: O(n) dans O(n).
 ## Arbre aleatoire
 
 ### Explication
+![image explicative](./explanations/kdtree.png)
 
 Insere tous les points un a un dans un arbre k-d avec k=1 d=2. Les points sont inseres dans un ordre aleatoire pour eviter d'etre influence par l'ordre des points
 (au cas ou ils seraient tries par exemple, ce qui menerait a un cas tres peu performant).
@@ -123,12 +140,13 @@ C'est un algorithme tres simple, mais interessant en analyse, car la complexite 
 
 ### Complexite | cas moyen: O(n ln(n))
 
-Proche de arbre median en pratique. C'est en <bold>performance</bold> que l'on gagne.
+Proche de arbre median en pratique. C'est en <bold>performance</bold> que l'on gagne le plus (x20), et non en complexite.
+
+Si on en croit wikipedia, on est meme plus de l'ordre du O(n ln(ln n)). Le probleme est que cela depend beaucoup du nuage de points: si les coefficients sont entiers par exemple cela prendra bien plus longtemps (points qui ont la meme ordonnee)
 
 -- --
 
 ## Grille
-
 
 ### Explication
 
@@ -136,12 +154,30 @@ Il s'agit ici de la meilleure solution selon nos amis developpeurs de stack over
 
 Nous avons eu l'idee seuls avant de voir l'algorithme en ligne, mais on confesse que le courage de l'implementer en python vient du fait que l'on a eu confirmation que l'algorithme avait une bonne complexite en ligne.
 
-Explication de Jules Doumeche (si on vient a douter de notre comprehension de l'algorithme):
+- Etape 1
+
+On obtient une premiere approximation de dmin en prenant n couples aleatoires (parmi n!) avec remise.
+
+Cette etape n'est pas a negliger: il faut etre en O(n) donc on ne teste que n couples, quitte a avoir peut etre une tres mauvaise approximation. L'ideal c'est d'avoir dmin du premier coup.
+
+Par exemple ici, on a trouve les deux points verts comme les meilleurs voisins. C'est faux, mais tant pis, on peut deja utiliser cette distance pour faire une grille.
+
+![Approximation](./explanations/approimation.png)
+
+- Etape 2
+
+Pour chaque point (donc O(n)) on les ajoute a la grille, en utilisant un hachage de tuples (un XOR aurait pu marcher, mais cela implique une symetrie sur les coordonnees).
+
+Avant d'ajouter le point a la grille, on verifie aussi sa distance avec tous les points dans les voisins de Moore de sa grille, et on garde la plus petite distance en fin d'algorithme.
+
+Par exemple ici, le point jaune est celui qu'un insere. Les voisins de Moore vides sont en rouge. Les points qui sont potentiellement de meilleurs voisins que l'approximation de l'etape 1 son dans les voisins de Moore (points violets).
+
+![Grille](./explanations/grid.png)
 
 ### Complexite | cas moyen: O(n)
 
-L'algorithme ne fait que des "boucles" simples a travers les points. Si on suppose que le hashing se fait en temps constant, et qu'on ne tient pas compte de la reallocation de la grille, on arrive tres tres vite a la conclusion du O(n).
+L'algorithme ne fait que des "boucles" simples a travers les points.
 
 ### En partique
 
-# TODO
+L'algorithme est extremement sensible a la premiere approximation. Dans un nuage de points aleatoire, on ne risque pas trop d'avoir dapprox >> dmin, mais si c'est le cas, on se retrouve a faire l'algo naif, en pire (car on fait 2 fois tous les couples).
