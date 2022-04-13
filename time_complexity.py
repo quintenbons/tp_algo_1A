@@ -12,10 +12,11 @@ import student.tree.solution as tree
 import student.tree_no_sort.solution as tree_no_sort
 import student.tree_functional.solution as tree_functional
 import student.tree_functional_no_sort.solution as tree_functional_no_sort
+import student.randomized.solution as randomized
 
 # Constants
 MIN_POINTS = 10
-MAX_POINTS = 100
+MAX_POINTS = 300
 SAMPLE_SIZE = 10 # automatic linspace
 TEST_REPEAT = 20 # number of repeats (uniformize)
 
@@ -32,13 +33,14 @@ def plot_data(data):
     """
     pyplot magic
     """
-    [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time] = data
+    [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time, randomized_time] = data
 
     plt.plot(X, naive_time, label="naive", color="blue")
     plt.plot(X, tree_no_sort_time, label="tree_no_sort", color="orange")
     plt.plot(X, tree_time, label="tree", color="magenta")
     plt.plot(X, tree_functional_time, label="tree_functional", color="red")
     plt.plot(X, tree_functional_no_sort_time, label="tree_functional_no_sort", color="green")
+    plt.plot(X, randomized_time, label="randomized", color="cyan")
     plt.legend()
     plt.show()
 
@@ -62,6 +64,7 @@ def measure_and_save():
     tree_time = np.zeros(len(X))
     tree_functional_time = np.zeros(len(X))
     tree_functional_no_sort_time = np.zeros(len(X))
+    randomized_time = np.zeros(len(X))
 
     # On mute l'output pendant les tests
     old_stdout = sys.stdout
@@ -94,6 +97,10 @@ def measure_and_save():
             tree_functional_no_sort.get_closest(points)
             tree_functional_no_sort_time[i] += time() - temp
 
+            temp = time();
+            randomized.get_closest(points)
+            randomized_time[i] += time() - temp
+
 
         # on n'oublie pas de rediviser
         naive_time[i] /= TEST_REPEAT
@@ -101,6 +108,7 @@ def measure_and_save():
         tree_time[i] /= TEST_REPEAT
         tree_functional_time[i] /= TEST_REPEAT
         tree_functional_no_sort_time[i] /= TEST_REPEAT
+        randomized_time[i] /= TEST_REPEAT
 
 
     # on affiche le nombre de points comptes par get_closest
@@ -111,7 +119,7 @@ def measure_and_save():
     sys.stdout.close
     sys.stdout = old_stdout
 
-    data = [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time]
+    data = [X, naive_time, tree_no_sort_time, tree_time, tree_functional_time, tree_functional_no_sort_time, randomized_time]
 
     plot_data(data)
 

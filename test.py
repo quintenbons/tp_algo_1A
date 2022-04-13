@@ -14,6 +14,7 @@ import student.tree_no_sort.solution as tree_no_sort
 import student.tree.solution as tree
 import student.tree_functional.solution as tree_functional
 import student.tree_functional_no_sort.solution as tree_functional_no_sort
+import student.randomized.solution as randomized
 
 from main import main as realmain
 
@@ -80,24 +81,30 @@ def papers_please(closest1, closest2):
 
     return same
 
-def test_compare_to_naive(compared_closest):
+def test_compare_to_naive(compared_closest, algorithme="l'algorithme"):
     """
     teste tree_no_sort en ayant
     pour reference le test naif
     Si rien ne s'affiche, c'est
     probablement que la fonction marche
     """
+    all_good = True
+
     for _ in range(TEST_NUMBER):
         points = generate_point_sample(POINT_NUMBER)
         closest_naive = naive.get_closest(points)
         closest_solution = compared_closest(points)
 
         if not papers_please(closest_naive, closest_solution):
+            all_good = False
             print(f"ERROR === Discrepancy ==============================")
             print(f"ERROR === naive    | distance : {distance2(closest_naive[0], closest_naive[1])}")
             tycat(points, closest_naive)
             print(f"ERROR === compared | distance : {distance2(closest_solution[0], closest_solution[1])}")
             tycat(points, closest_solution)
+
+    if all_good:
+        print(f"\033[1;32mTout va bien, {algorithme} a les memes resultats que la fonctione naive.\033[0m")
 
 def test_algo(fnc_closest):
     """
@@ -128,8 +135,8 @@ def run(fnc_closest1, fnc_closest2, n):
         fnc_closest2(points)
 
 def main():
-    test_compare_to_naive(tree_functional_no_sort.get_closest)
-    # test_algo(tree_functional.get_closest)
+    test_compare_to_naive(randomized.get_closest, "randomized")
+    # test_algo(randomized.get_closest)
     # test_dicho_insert()
     # run(tree.get_closest, tree_no_sort.get_closest, 100)
 
